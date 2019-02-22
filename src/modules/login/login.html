@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <link rel="stylesheet" href="http://at.alicdn.com/t/font_901165_4ctls13ehr.css">
+    <title>登录</title>
+    <style lang="less">
+      #canvas{display: block;width: 100%;height: 100%;}
+      body, div, dl, dt, dd, ul, ol, li, h1, h2, h3, h4, h5, h6, pre, code, form, fieldset, legend, input, button, textarea, p, blockquote, th, td {
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        background: #fff;
+        overflow: hidden;
+        color: #555;
+        font-size: 14px;
+        font-family: Hiragino Sans GB,Microsoft Yahei UI,Microsoft Yahei,"\5FAE\8F6F\96C5\9ED1",Segoe UI,Tahoma,"\5B8B\4F53 b8b\4F53",SimSun,sans-serif;
+      }
+
+      td, th, caption {
+        font-size: 14px;
+      }
+
+      h1, h2, h3, h4, h5, h6 {
+        font-weight: normal;
+        font-size: 100%;
+      }
+
+      address, caption, cite, code, dfn, em, strong, th, var {
+        font-style: normal;
+        font-weight: normal;
+      }
+
+      a {
+        color: #555;
+        text-decoration: none;
+      }
+
+      a:hover {
+        text-decoration: underline;
+      }
+
+      img {
+        border: none;
+        display: inline-block;
+      }
+
+      ol, ul, li {
+        list-style: none;
+      }
+
+      input, textarea, select, button {
+        font: 14px Verdana, Helvetica, Arial, sans-serif;
+      }
+
+      table {
+        border-collapse: collapse;
+      }
+
+
+
+      .clearfix:after {
+        content: ".";
+        display: block;
+        height: 0;
+        clear: both;
+        visibility: hidden;
+      }
+
+      .clearfix {
+        *zoom: 1;
+      }
+
+      .left {
+        float: left;
+      }
+
+      .right {
+        float: right;
+      }
+
+      button,input {
+        outline: none;
+      }
+      html,body,#app{
+        width: 100%;
+        height: 100%;
+      }
+
+
+    </style>
+  </head>
+  <body>
+    <canvas id="canvas"></canvas>
+    <div id="login"></div>
+    <!-- built files will be auto injected -->
+  </body>
+  <script>
+    class Circle {
+      constructor(x, y) {
+        this.x = x;
+        this.y = y;
+        this.r = Math.random() * 15;
+        this.mx = Math.random();
+        this.my = Math.random();
+      }
+
+      drawCircle(ctx) {
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.r, 0, 360);
+        ctx.closePath();
+        ctx.fillStyle = 'rgba(20, 204, 204, 0.2)';
+        ctx.fill();
+      }
+
+      drawLine(ctx, _circle) {
+        var dx = this.x - _circle.x;
+        var dy = this.y - _circle.y;
+        var dd = Math.sqrt(dx * dx + dy * dy);
+        if (dd < 150) {
+          ctx.beginPath();
+          ctx.moveTo(this.x, this.y);
+          ctx.lineTo(_circle.x, _circle.y);
+          ctx.closePath();
+          ctx.strokeStyle = 'rgba(20, 204, 204, 0.1)';
+          ctx.stroke();
+        }
+      }
+
+      move(w, h) {
+        this.mx = (this.x < w && this.x > 0) ? this.mx : -this.mx;
+        this.my = (this.y < h && this.y > 0) ? this.my : -this.my;
+        this.x += this.mx;
+        this.y += this.my;
+      }
+
+    }
+
+    class currentCircle extends Circle {
+      constructor(x, y) {
+        super(x, y)
+      }
+
+      drawCircle(ctx) {
+        ctx.beginPath();
+        this.r = Math.random() * 16;
+        ctx.arc(this.x, this.y, this.r, 0, 360);
+        ctx.closePath();
+        ctx.fillStyle = 'rgba(20, 204, 204,' + Math.random() + ')';
+        ctx.fill();
+      }
+    }
+
+    //动画准备
+    window.requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame || window.msRequestAnimationFrame;
+
+    var canvas = document.querySelector("#canvas");
+    var ctx = canvas.getContext("2d");
+    var w = canvas.width = canvas.offsetWidth;
+    var h = canvas.height = canvas.offsetHeight;
+    var circles = [];
+    var current_circle = new currentCircle(0, 0);
+
+    var draw = function () {
+      ctx.clearRect(0, 0, w, h);
+      for (var i = 0; i < circles.length; i++) {
+        circles[i].move(w, h);
+        circles[i].drawCircle(ctx);
+        for (var j = i + 1; j < circles.length; j++) {
+          circles[i].drawLine(ctx, circles[j]);
+        }
+      }
+      if (current_circle.x) {
+        current_circle.drawCircle(ctx);
+        for (var k = 0; k < circles.length; k++) {
+          current_circle.drawLine(ctx, circles[k]);
+        }
+      }
+      requestAnimationFrame(draw);
+    };
+
+    window.onload = function (ev) {
+      init(100)
+    };
+
+    function init(num) {
+      for (var i = 1; i <= num; i++) {
+        circles.push(new Circle(Math.random() * w, Math.random() * h));
+      }
+      draw()
+    };
+
+
+    window.onmousemove = function (ev) {
+      ev || window.event;
+      current_circle.x = ev.clientX;
+      current_circle.y = ev.clientY;
+    };
+    window.onmouseout = function (ev) {
+      ev || window.event;
+      current_circle.x = null;
+      current_circle.y = null;
+    };
+  </script>
+</html>
